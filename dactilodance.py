@@ -6,17 +6,17 @@ from keyboard import finger
 from k_event import k_event
 from threading import Timer
 from keyboard import stoped
-from keyboard import alphabet, keys
 import random
 
 pygame.init()
 screen_width = 600
 letter_size = screen_width/8
 count = 0
+score = 0
 screen_height = 600
 t_count = 0
 miss = False
-limit = 450
+limit = 300
 delta = 0
 clickable = []
 pause = False
@@ -104,6 +104,8 @@ class FallingKey:
         screen.blit(lettre, (self.x + (self.width - lettre.get_rect().width)/2, self.y + (self.height - lettre.get_rect().height)/2))
 
     def offlimit(self, color):
+        # TODO: validation animation disparaitre rapide
+        # TODO: marge d'erreur et perfect timing
         global clickable
 
         if limit - self.height < self.y < limit:
@@ -138,11 +140,12 @@ class FallingKey:
 
     def checkclick(self):
         global delta
+        global score
         if self.mustclick and Keyboard[self.key]:
-            self.color = GREEN
+            # self.color = GREEN
             if not self.clicked:
                 bulleSound.play()
-                print("speed :", speed)
+                score += 1
                 # print(delta)
             self.clicked = True
             delta = 0
@@ -182,10 +185,18 @@ def falling_letter():
     for letter in lettre_list:
         letter.fall()
         letter.display()
-        letter.offlimit(RED)
+        if letter.clicked:
+            letter.offlimit(GREEN)
+        else:
+            letter.offlimit(RED)
         letter.checkmiss()
         if letter.y > screen_height:
             lettre_list.remove(letter)
+
+
+def displayscore():
+    txScore = font.render("score : "+str(score), True, WHITE)
+    screen.blit(txScore, (txScore.get_rect().height, screen_height - txScore.get_rect().height))
 
 
 def bgmusic():
@@ -202,6 +213,7 @@ def bgmusic():
 def pop_key(liste):
     # TODO: mot aparrait prédéfinis comme partition
     # TODO: charger partition depuis mémoire
+    # TODO: enlever les globaux
     delay = random.random()
     global delay_min
     if len(liste) < 20 and delay < 0.1 and delay_min < 0:
@@ -250,7 +262,8 @@ c_color = BLACK
 # TODO: button speed / level
 # TODO: last char pressed
 # TODO: juicy effect
-# TODO: validation animation disparaitre rapide
+# TODO: affichage séparation gauche droite
+# TODO: mode piano
 game_over = False
 menu = True
 while not end:
@@ -280,6 +293,7 @@ while not end:
         falling_letter()
         redline()
         accel()
+        displayscore()
     clock.tick(60)
 
     pygame.display.update()
