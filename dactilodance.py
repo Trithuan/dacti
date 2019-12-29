@@ -1,38 +1,42 @@
 import pygame
 import sys
 import os
-from keyboard import Keyboard
 from keyboard import finger
 from k_event import k_event
-from threading import Timer
 from keyboard import stoped
+from GameParam import GameParam
+from threading import Timer
 import random
 
 pygame.init()
 screen_width = 600
-letter_size = screen_width/8
-count = 0
-score = 0
 screen_height = 600
-t_count = 0
-miss = False
-limit = 300
-delta = 0
-clickable = []
-pause = False
-speed = 2
-min_prime = letter_size/speed + 20
-delay_min = min_prime
-bool_a = False
-w_x = 500
+letter_size = screen_width/8
+# min_prime = letter_size/speed + 20
 WHITE = pygame.Color(255, 255, 255)
 BLUE = pygame.Color(109, 209, 222)
 BLACK = pygame.Color(0,  0,  0)
 RED = pygame.Color(255, 0, 0)
+GOLD = pygame.Color(255,215,0)
+score = -1
 GREEN = pygame.Color(0, 255, 0)
 GRAY = pygame.Color(100, 100, 100)
+
 C_MENU = pygame.Color(54, 57, 63)
-key_col = WHITE
+marge = 20
+ThisGame = GameParam(BLACK, WHITE, letter_size, marge)
+
+limit = 300
+perfectlimit = 400
+deadlimit = 500
+delta = 0
+
+
+
+
+
+bool_a = False
+w_x = 500
 
 font = pygame.font.SysFont("Times New Roman, Arial", 50)
 TxMenu = font.render("MENU", True, WHITE)
@@ -44,14 +48,18 @@ posMenu = (menu_x, menu_y)
 dif =Txspace.get_rect().width - TxMenu.get_rect().width
 pospace = (menu_x - dif/2, menu_y + 200)
 
-pygame.mixer.music.load("Tigra.mp3")
-pygame.mixer.music.set_volume(0.1)
-bulleSound = pygame.mixer.Sound("bulle.wav")
+music = pygame.mixer.music
+
+music.load("Tigra.mp3")
+music.set_volume(0.1)
 music_start = True
+bulleSound = pygame.mixer.Sound("bulle.wav")
 whouv = pygame.mixer.Sound("whouv.wav")
 soundError = pygame.mixer.Sound("error.wav")
+perfSound = pygame.mixer.Sound("perfSound.wav")
 bulleSound.set_volume(0.6)
 soundError.set_volume(0.04)
+perfSound.set_volume(0.5)
 
 
 
@@ -59,199 +67,51 @@ w_y = 50
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (w_x, w_y)
 screen = pygame.display.set_mode([screen_width, screen_height])
 
-resetbg = True
-def black():
-    global c_color
-    global resetbg
-    c_color = BLACK
-    resetbg = True
-
-def bg_black():
-    bgblaked = Timer(0.5, black)
-    bgblaked.start()
-
 
 def clear(color):
     pygame.draw.rect(screen, color, (0, 0, screen_width, screen_height))
 
 
-def redline():
-    pygame.draw.line(screen, RED, (0, limit), (screen_width, limit))
+def drawlines(height, color):
+    pygame.draw.line(screen, color, (0, height), (screen_width, height))
 
-
-class FallingKey:
-
-    def __init__(self, key, col):
-        self.key = key
-        self.finger = self.finger()
-        self.width = screen_width/8
-        self.height = screen_height/8
-        self.x = self.get_x()
-        self.y = 0
-        self.speed = speed
-        self.color = col
-        self.primeColor = WHITE
-        self.mustclick = False
-        self.clicked = False
-        self.clickable = False
-
-    def fall(self):
-        self.y += self.speed
-
-    def display(self):
-        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height))
-        lettre = font.render(self.key, True, BLACK)
-        screen.blit(lettre, (self.x + (self.width - lettre.get_rect().width)/2, self.y + (self.height - lettre.get_rect().height)/2))
-
-    def offlimit(self, color):
-        # TODO: validation animation disparaitre rapide
-        # TODO: marge d'erreur et perfect timing
-        global clickable
-
-        if limit - self.height < self.y < limit:
-            self.color = color
-            self.mustclick = True
-            self.checkclick()
-            if not self.clickable:
-                clickable.append(self)
-                self.clickable = True
-        else:
-            self.mustclick = False
-            for x in clickable:
-                if x == self:
-                    clickable.remove(self)
-
-    def get_x(self):
-        return self.finger * self.width
-
-    def checkmiss(self):
-        global count
-        global miss
-        if self.y > limit + 20 and not self.clicked:
-            count += 1
-            # print(count,"t'es nul")
-            miss = True
-
-    def finger(self):
-        for sub in finger:
-            for i in sub:
-                if i == self.key:
-                    return finger.index(sub)
-
-    def checkclick(self):
-        global delta
-        global score
-        if self.mustclick and Keyboard[self.key]:
-            # self.color = GREEN
-            if not self.clicked:
-                bulleSound.play()
-                score += 1
-                # print(delta)
-            self.clicked = True
-            delta = 0
-
-switch = True
-
-def blink():
-    global key_col
-    global switch
-    global lettre_list
-    if switch:
-        key_col = BLUE
-        switch = False
-    else:
-        key_col = WHITE
-        switch = True
-    # for letter in lettre_list:
-    #     letter.color = pygame.color.Color(red, green, blue)
-
-def accel():
-    global t_count
-    global speed
-    global min_prime
-    t_count += 1
-    if t_count > 1200:
-        whouv.play()
-        blink()
-        speed += 0.2
-        min_prime = letter_size/speed + 20
-        t_count = 0
-
-
-lettre_list = []
-
+def drawrect(height, large, color):
+    pygame.draw.rect(screen, color, (0, height- large/2, screen_width, large))
 
 def falling_letter():
-    for letter in lettre_list:
+    for letter in ThisGame.lettre_list:
         letter.fall()
-        letter.display()
-        if letter.clicked:
-            letter.offlimit(GREEN)
-        else:
-            letter.offlimit(RED)
-        letter.checkmiss()
+        displayletter(letter)
+        ThisGame.offlimit(letter , RED,GREEN, GOLD, limit, deadlimit, perfectlimit, perfSound, bulleSound)
+        ThisGame.checkmiss(letter, deadlimit)
         if letter.y > screen_height:
-            lettre_list.remove(letter)
+            ThisGame.lettre_list.remove(letter)
+
+def displaycol(game):
+    for col in game.col:
+        pygame.draw.rect(screen, GRAY, (col*letter_size, 0, letter_size, screen_height))
 
 
 def displayscore():
-    txScore = font.render("score : "+str(score), True, WHITE)
-    screen.blit(txScore, (txScore.get_rect().height, screen_height - txScore.get_rect().height))
+    txScore = font.render("score : "+str(ThisGame.score), True, WHITE)
+    screen.blit(txScore, (10, screen_height - txScore.get_rect().height))
 
 
-def bgmusic():
-    global music_start
-    global pause
-    if music_start:
-        pygame.mixer.music.play(0)
-        music_start = False
-    elif len(stoped):
-        if stoped[0] and not menu:
-            pygame.mixer.music.fadeout(1000)
+def bg_black():
+    bgblaked = Timer(1, ThisGame.black, args = (BLACK,))
+    bgblaked.start()
 
 
-def pop_key(liste):
-    # TODO: mot aparrait prédéfinis comme partition
-    # TODO: charger partition depuis mémoire
-    # TODO: enlever les globaux
-    delay = random.random()
-    global delay_min
-    if len(liste) < 20 and delay < 0.1 and delay_min < 0:
-        # alpha = random.choice(keys)
-        index_finger = random.randint(0, 7)
-        index_letter = random.randint(0, len(finger[index_finger]) - 1)
-        alpha = finger[index_finger][index_letter]
-        buf_lettre = FallingKey(alpha, key_col)
-
-        liste.append(buf_lettre)
-        delay_min = min_prime
-    else:
-        delay_min -= 1
-
-
-def get_finger(a):
-    for x in range(len(finger)):
-        for y in range(len(finger[x])):
-            if finger[x][y] == a:
-                return x
-    return -1
-
-
-def col_light():
-    global miss
-    for alpha in Keyboard:
-        wellclicked = False
-        if Keyboard[alpha]:
-            for letter in clickable:
-                if letter.key == alpha:
-                    wellclicked = True
-                    break
-                else:
-                    wellclicked = False
-            if not wellclicked:
-                miss = True
-            col = get_finger(alpha)
-            pygame.draw.rect(screen, GRAY, (col*letter_size, 0, letter_size, screen_height))
+def displaylives():
+    rad = 20
+    for x in range(ThisGame.life):
+        pygame.draw.circle(screen, GREEN, (int(x*rad*3 + 30), int(rad + 20)), rad)
+def displayletter(fLetter):
+    pygame.draw.rect(screen, fLetter.color, (fLetter.x, fLetter.y, fLetter.width, fLetter.height))
+    lettre = font.render(fLetter.key, True, BLACK)
+    screen.blit(lettre, (fLetter.x + (fLetter.width - lettre.get_rect().width)/2, fLetter.y + (fLetter.height - lettre.get_rect().height)/2))
+    # bolle = font.render(str(fLetter.first), True, BLACK)
+    # screen.blit(bolle, (fLetter.x + (fLetter.width - bolle.get_rect().width)/2, fLetter.y + fLetter.height))
 
 
 clock = pygame.time.Clock()
@@ -265,35 +125,52 @@ c_color = BLACK
 # TODO: affichage séparation gauche droite
 # TODO: mode piano
 game_over = False
-menu = True
 while not end:
     k_event()
-    bgmusic()
-    if menu:
+    ThisGame.bgmusic(music, stoped)
+    if ThisGame.menu:
         clear(C_MENU)
+        if score >= 0:
+            txscore = font.render("score : " + str(score), True, WHITE)
+            poscore = ((screen_width - txscore.get_rect().width)/2, screen_height/2)
+            screen.blit(txscore, poscore)
         screen.blit(TxMenu, posMenu)
         screen.blit(Txspace, pospace)
         if len(stoped) > 0:
             if stoped[0]:
-                menu = False
+                ThisGame.menu = False
                 stoped.remove(True)
-    elif not game_over:
-        delta += 1
-        if miss:
-            soundError.play()
-            r = random.randint(0, 255)
-            v = random.randint(0, 255)
-            b = random.randint(0, 255)
-            c_color = pygame.color.Color(r, v, b)
-            bg_black()
-            miss = False
-        clear(c_color)
-        col_light()
-        pop_key(lettre_list)
-        falling_letter()
-        redline()
-        accel()
-        displayscore()
+    else:
+        if not game_over:
+            delta += 1
+            if ThisGame.miss:
+                soundError.play()
+                r = random.randint(0, 255)
+                v = random.randint(0, 255)
+                b = random.randint(0, 255)
+                ThisGame.bgcolor = pygame.color.Color(r, v, b)
+                ThisGame.life -= 1
+                bg_black()
+                ThisGame.miss = False
+            clear(ThisGame.bgcolor)
+            ThisGame.col_light()
+            displaycol(ThisGame)
+            ThisGame.pop_key(screen_width, screen_height)
+            drawlines(limit, RED)
+            drawlines(deadlimit, RED)
+            displaylives()
+            drawrect(perfectlimit, ThisGame.marge, GOLD)
+            falling_letter()
+            if ThisGame.life <= 0:
+                game_over = True
+                ThisGame.end = True
+            ThisGame.accel(whouv)
+            displayscore()
+        else:
+            score = ThisGame.score
+            ThisGame = GameParam(BLACK, WHITE, screen_width/8, 10)
+            game_over = False
+            stoped.clear()
     clock.tick(60)
 
     pygame.display.update()

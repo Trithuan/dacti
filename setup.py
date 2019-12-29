@@ -3,7 +3,7 @@ from cx_Freeze import setup, Executable
 # setup.py build
 setup(
     name = "dacti",
-    version = "2",
+    version = "4",
     description = "dacti",
     executables = [Executable("dactilodance.py")],
 )
