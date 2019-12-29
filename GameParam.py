@@ -4,8 +4,17 @@ from keyboard import Keyboard
 import random
 from threading import Timer
 
+
+def get_finger(a):
+	for x in range(len(finger)):
+		for y in range(len(finger[x])):
+			if finger[x][y] == a:
+				return x
+	return -1
+
+
 class GameParam:
-	def __init__(self, bgcolor, key_col, lettersize, marge):
+	def __init__(self, bgcolor, key_col, lettersize, marge, speed):
 		self.bgcolor = bgcolor
 		self.clickable = []
 		self.letter_size = lettersize
@@ -14,23 +23,23 @@ class GameParam:
 		self.lettre_list = []
 		self.t_count = 0
 		self.count = 0
-		self.speed = 2
+		self.speed = speed
 		self.lettersize = lettersize
 		self.frequence = self.lettersize/self.speed + 20
 		self.score = 0
 		self.miss = False
-		self.music_start = True
+		self.music_start = False
 		self.pause = False
 		self.menu = True
 		self.end = False
 		self.life = 3
 		self.col = []
 		self.delay_min = self.frequence
-		self.canclick = True
 		self.marge = marge
+		self.canclick = True
 		self.hold = False
 
-	def offlimit(self, key, red ,green, gold, limit, deadlimit, perfmilit, sound1, sound2):
+	def offlimit(self, key, red, green, gold, limit, deadlimit, perfmilit, sound1, sound2):
 		marge = 20
 		# TODO: validation animation disparaitre rapide
 		# TODO: marge d'erreur et perfect timing
@@ -64,15 +73,12 @@ class GameParam:
 					lettre.first = True
 					break
 
-
 	def enableclick(self):
 		self.canclick = True
 
 	def waitclick(self):
 		wait = Timer(1, self.enableclick)
 		wait.start()
-
-
 
 	def checkclick(self,letter, sound1, sound2, perfmilit, gold):
 		marge = 10
@@ -127,10 +133,7 @@ class GameParam:
 			return False
 
 	def bgmusic(self, music, stoped):
-		if self.music_start:
-			music.play(0)
-			self.music_start = False
-		elif len(stoped):
+		if len(stoped):
 			if stoped[0] and not self.menu:
 				music.fadeout(1000)
 
@@ -153,13 +156,6 @@ class GameParam:
 		else:
 			self.delay_min -= 1
 
-	def get_finger(self, a):
-		for x in range(len(finger)):
-			for y in range(len(finger[x])):
-				if finger[x][y] == a:
-					return x
-		return -1
-
 	def col_light(self):
 		self.col = []
 		for alpha in Keyboard:
@@ -175,7 +171,7 @@ class GameParam:
 					self.miss = True
 					self.hold = True
 					self.waitwell()
-				self.col.append(self.get_finger(alpha))
+				self.col.append(get_finger(alpha))
 
 	def waitwell(self):
 		wait = Timer(1, self.unhold)

@@ -4,7 +4,6 @@ from keyboard import Keyboard, alphabet
 from keyboard import stoped
 
 
-
 def k_event():
     for events in pygame.event.get():
         if events.type == pygame.QUIT:
