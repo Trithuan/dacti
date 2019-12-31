@@ -1,6 +1,7 @@
 import pygame
 import os
 from playlist import playlist
+from color import *
 import random
 pygame.init()
 speed = 2
@@ -8,18 +9,8 @@ screen_width = 600
 screen_height = 600
 letter_size = screen_width/8
 # min_prime = letter_size/speed + 20
-WHITE = pygame.Color(255, 255, 255)
-BLUE = pygame.Color(109, 209, 222)
-BLACK = pygame.Color(0,  0,  0)
-RED = pygame.Color(255, 0, 0)
-GOLD = pygame.Color(255,215,0)
-score = -1
-GREEN = pygame.Color(0, 255, 0)
-GRAY = pygame.Color(100, 100, 100)
-
-C_MENU = pygame.Color(54, 57, 63)
 marge = 20
-
+score = -1
 limit = 300
 perfectlimit = 400
 deadlimit = 500
@@ -40,7 +31,7 @@ pospace = (menu_x - dif/2, menu_y + 200)
 
 music = pygame.mixer.music
 
-music.set_volume(0.2)
+music.set_volume(0.4)
 music_start = True
 bulleSound = pygame.mixer.Sound("bruitage/bulle.wav")
 whouv = pygame.mixer.Sound("bruitage/whouv.wav")
@@ -48,7 +39,7 @@ soundError = pygame.mixer.Sound("bruitage/error.wav")
 perfSound = pygame.mixer.Sound("bruitage/perfSound.wav")
 bulleSound.set_volume(0.6)
 soundError.set_volume(0.04)
-perfSound.set_volume(0.5)
+perfSound.set_volume(0.8)
 
 w_y = 50
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (w_x, w_y)
