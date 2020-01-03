@@ -8,6 +8,7 @@ from settings import *
 from affichage import *
 import random
 from playlist import playlist
+from word import *
 
 
 
@@ -74,7 +75,7 @@ while not end:
 				ThisGame.miss = False
 			clear(ThisGame.bgcolor)
 			ThisGame.col_light()
-			ThisGame.pop_key(screen_width, screen_height)
+			pop_key(ThisGame,screen_width, screen_height, finger)
 			ThisGame.accel(whouv)
 			display(ThisGame)
 			falling_letter(ThisGame)

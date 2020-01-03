@@ -25,6 +25,7 @@ class FallingKey:
         self.y += self.speed
 
     def get_x(self):
+        print(self.key)
         return self.finger * self.width
 
     def finger(self):

@@ -1,9 +1,14 @@
 from settings import *
 from threading import Timer
-
+import pygame
 
 def clear(color):
-	pygame.draw.rect(screen, color, (0, 0, screen_width, screen_height))
+	pygame.draw.rect(screen, color, (0, 0, screen_width/2, screen_height))
+	r = (color.r + 25) % 255
+	g = (color.g + 25) % 255
+	b = (color.b + 25) % 255
+	color2 = pygame.Color(r,g,b)
+	pygame.draw.rect(screen, color2, (screen_width/2, 0, screen_width/2, screen_height))
 	
 
 def drawlines(height, color):

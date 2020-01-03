@@ -1,5 +1,4 @@
 from keyboard import finger
-from fallingKey import FallingKey
 from keyboard import Keyboard
 import random
 from threading import Timer
@@ -12,7 +11,7 @@ def get_finger(a):
 				return x
 	return -1
 
-
+# TODO: fragmenter Gameparam
 class GameParam:
 	def __init__(self, bgcolor, key_col, lettersize, marge, speed):
 		self.bgcolor = bgcolor
@@ -38,6 +37,9 @@ class GameParam:
 		self.marge = marge
 		self.canclick = True
 		self.hold = False
+		self.new_mot = True
+		self.mot = ""
+		self.numlettre = 0
 
 	def offlimit(self, key, red, green, gold, limit, deadlimit, perfmilit, sound1, sound2):
 		marge = 20
@@ -136,25 +138,6 @@ class GameParam:
 		if len(stoped):
 			if stoped[0] and not self.menu:
 				music.fadeout(1000)
-
-	def pop_key(self, w, h):
-		# TODO: mot aparrait prédéfinis comme partition
-		# TODO: charger partition depuis mémoire
-		# TODO: enlever les globaux
-		delay = random.random()
-		if len(self.lettre_list) < 20 and delay < 0.1 and self.delay_min < 0:
-			# alpha = random.choice(keys)
-			index_finger = random.randint(0, 7)
-			index_letter = random.randint(0, len(finger[index_finger]) - 1)
-			alpha = finger[index_finger][index_letter]
-			buf_lettre = FallingKey(alpha, self.key_col, w, h, self.speed)
-			for lettre in self.lettre_list:
-				if lettre.key == buf_lettre.key:
-					buf_lettre.first = False
-			self.lettre_list.append(buf_lettre)
-			self.delay_min = self.frequence
-		else:
-			self.delay_min -= 1
 
 	def col_light(self):
 		self.col = []
